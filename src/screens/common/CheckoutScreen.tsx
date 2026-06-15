@@ -3,7 +3,7 @@
  * Address input, coupon, order summary, Place Order CTA.
  */
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
@@ -13,6 +13,7 @@ import { Colors, Typography, Spacing, Radius } from '../../theme';
 import { formatINR, calcCartTotals } from '../../utils/helpers';
 import { Config } from '../../config';
 import RazorpayCheckout from 'react-native-razorpay';
+import { ArrowLeft } from 'lucide-react-native';
 
 const CheckoutScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -104,9 +105,16 @@ const CheckoutScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Checkout</Text>
+      {/* ── Header ── */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={20} color={Colors.textPrimary} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Checkout</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {/* Delivery Address */}
         <Card>
           <Text style={styles.sectionTitle}>📍 Delivery Address</Text>
@@ -160,8 +168,32 @@ const CheckoutScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bgPrimary },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.bgPrimary,
+  },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: Colors.bgCard,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: Colors.textPrimary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: Typography.body,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
   content: { padding: Spacing.lg, paddingBottom: Spacing.xxl },
-  title: { fontSize: Typography.heading, fontWeight: '800', marginBottom: Spacing.lg, letterSpacing: -0.5 },
   sectionTitle: { fontSize: Typography.base, fontWeight: '700', marginBottom: Spacing.md, color: Colors.textPrimary },
   rowInputs: { flexDirection: 'row', gap: Spacing.sm },
   couponRow: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.sm },

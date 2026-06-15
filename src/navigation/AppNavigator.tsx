@@ -73,11 +73,7 @@ const VendorTab = () => (
   <Tab.Navigator
     screenOptions={{
       lazy: true,
-      headerShown: true,
-      headerStyle: { backgroundColor: Colors.bgPrimary },
-      headerTintColor: Colors.textPrimary,
-      headerTitleStyle: { fontWeight: '700' as const, fontSize: Typography.body },
-      headerShadowVisible: false,
+      headerShown: false,
       tabBarStyle: styles.tabBar,
       tabBarActiveTintColor: Colors.primary,
       tabBarInactiveTintColor: Colors.textMuted,
@@ -88,7 +84,6 @@ const VendorTab = () => (
       name="Home"
       component={HomeScreen}
       options={{
-        headerShown: false,
         title: 'Supply Setu',
         tabBarLabel: 'Home',
         tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
@@ -107,7 +102,6 @@ const VendorTab = () => (
       name="Cart"
       component={CartScreen}
       options={{
-        headerShown: false,
         title: 'Cart',
         tabBarLabel: 'Cart',
         tabBarIcon: ({ color, size }) => <ShoppingCart size={size} color={color} strokeWidth={2} />,
@@ -126,7 +120,6 @@ const VendorTab = () => (
       name="Profile"
       component={ProfileScreen}
       options={{
-        headerShown: false,
         title: 'Profile',
         tabBarLabel: 'Profile',
         tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
@@ -140,11 +133,7 @@ const RetailerTab = () => (
   <Tab.Navigator
     screenOptions={{
       lazy: true,
-      headerShown: true,
-      headerStyle: { backgroundColor: Colors.bgPrimary },
-      headerTintColor: Colors.textPrimary,
-      headerTitleStyle: { fontWeight: '700' as const, fontSize: Typography.body },
-      headerShadowVisible: false,
+      headerShown: false,
       tabBarStyle: styles.tabBar,
       tabBarActiveTintColor: Colors.primary,
       tabBarInactiveTintColor: Colors.textMuted,
@@ -155,7 +144,6 @@ const RetailerTab = () => (
       name="Home"
       component={HomeScreen}
       options={{
-        headerShown: false,
         title: 'Supply Setu',
         tabBarLabel: 'Home',
         tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
@@ -174,7 +162,6 @@ const RetailerTab = () => (
       name="Cart"
       component={CartScreen}
       options={{
-        headerShown: false,
         title: 'Cart',
         tabBarLabel: 'Cart',
         tabBarIcon: ({ color, size }) => <ShoppingCart size={size} color={color} strokeWidth={2} />,
@@ -193,7 +180,6 @@ const RetailerTab = () => (
       name="Ledger"
       component={LedgerScreen}
       options={{
-        headerShown: false,
         title: 'Ledger',
         tabBarLabel: 'Ledger',
         tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} strokeWidth={2} />,
@@ -203,7 +189,6 @@ const RetailerTab = () => (
       name="Profile"
       component={ProfileScreen}
       options={{
-        headerShown: false,
         title: 'Profile',
         tabBarLabel: 'Profile',
         tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
@@ -254,76 +239,20 @@ const RootNavigator = () => {
       ) : user?.role === 'vendor' ? (
         <>
           <Stack.Screen name="VendorTab" component={VendorTab} />
-          <Stack.Screen
-            name="ProductDetail"
-            component={ProductDetailScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Product Details'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
-          <Stack.Screen
-            name="Checkout"
-            component={CheckoutScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Checkout'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
-          <Stack.Screen
-            name="OrderDetail"
-            component={OrderDetailScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Order Detail'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
-          <Stack.Screen
-            name="Notifications"
-            component={NotificationsScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Notifications'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
+          <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
         </>
       ) : (
         <>
           <Stack.Screen name="RetailerTab" component={RetailerTab} />
-          <Stack.Screen
-            name="ProductDetail"
-            component={ProductDetailScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Product Details'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
-          <Stack.Screen
-            name="Checkout"
-            component={CheckoutScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Checkout'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="OrderConfirmation" component={OrderConfirmationScreen} />
-          <Stack.Screen
-            name="OrderDetail"
-            component={OrderDetailScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Order Detail'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
-          <Stack.Screen
-            name="Notifications"
-            component={NotificationsScreen}
-            options={({ navigation }) => ({
-              ...headerOptions('Notifications'),
-              headerLeft: () => <BackButton navigation={navigation} />,
-            })}
-          />
+          <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+          <Stack.Screen name="Notifications" component={NotificationsScreen} />
         </>
       )}
     </Stack.Navigator>

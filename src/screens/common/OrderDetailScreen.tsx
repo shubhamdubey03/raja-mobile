@@ -19,7 +19,7 @@ import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
 import { formatINR, formatDateSecure } from '../../utils/helpers';
 import { Config } from '../../config';
 import { useAppSelector } from '../../hooks/useRedux';
-import { Calendar, MapPin, Package, CreditCard, ChevronRight } from 'lucide-react-native';
+import { Calendar, MapPin, Package, CreditCard, ChevronRight, ArrowLeft } from 'lucide-react-native';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   pending:    { label: 'PENDING',           color: '#725B00', bg: '#FFF9E6' },
@@ -110,7 +110,16 @@ const OrderDetailScreen: React.FC<{ route: any; navigation: any }> = ({ route, n
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={styles.container}>
+      {/* ── Header ── */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={20} color={Colors.textPrimary} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Order Detail</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView contentContainerStyle={styles.content}>
         {/* Order Header info */}
         <View style={styles.card}>
@@ -196,6 +205,31 @@ const OrderDetailScreen: React.FC<{ route: any; navigation: any }> = ({ route, n
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F1EC' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    backgroundColor: '#F5F1EC',
+  },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: Colors.bgCard,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: Colors.textPrimary,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: Typography.body,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F5F1EC' },
   content: { padding: Spacing.md, gap: Spacing.md },
   card: {
