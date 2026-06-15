@@ -650,7 +650,12 @@ const styles = StyleSheet.create({
   catChipText: { fontSize: Typography.caption, fontWeight: '600', color: Colors.textSecondary },
 
   viewAll: { fontSize: Typography.caption, color: Colors.primary, fontWeight: '600' },
-  productGrid: { paddingBottom: Spacing.xxxl },
+  productGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingBottom: Spacing.xxxl,
+  },
 
   // Vendor Header
   vendorHeader: {
