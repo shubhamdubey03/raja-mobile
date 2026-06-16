@@ -26,7 +26,6 @@ import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
 import { useTranslation } from '../../i18n';
 import { normalizeImageUrl } from '../../utils/helpers';
 import {
-  Menu,
   Settings,
   LogOut,
   ChevronRight,
@@ -121,6 +120,14 @@ const ProfileScreen: React.FC = () => {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
+            transformRequest: (data, headers) => {
+              if (headers) {
+                delete headers['Content-Type'];
+                delete headers['content-type'];
+              }
+              return data;
+            },
+            timeout: 60000,
           });
           const uploadedImageUrl = uploadRes.data.image_url;
 
@@ -165,18 +172,7 @@ const ProfileScreen: React.FC = () => {
   const gstStatus = user?.status === 'active' || user?.is_verified ? 'Verified' : 'Pending';
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* ── Custom App Header ── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} activeOpacity={0.7}>
-          <Menu size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Supply Setu</Text>
-        <TouchableOpacity style={styles.headerBtn} activeOpacity={0.7} onPress={openEditModal => setModalVisible(true)}>
-          <Settings size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Avatar Section */}
         <View style={styles.avatarContainer}>
@@ -364,26 +360,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxxl,
   },
 
-  // Custom Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    backgroundColor: '#FDF8F8',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2ECE8',
-  },
-  headerBtn: {
-    padding: 6,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: -0.3,
-  },
+
 
   // Avatar Section
   avatarContainer: {

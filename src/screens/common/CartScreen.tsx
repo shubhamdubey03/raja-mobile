@@ -138,7 +138,7 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <View style={styles.loadingWrap}>
           <ActivityIndicator color={Colors.primary} size="large" />
           <Text style={styles.loadingText}>Loading cart...</Text>
@@ -148,7 +148,7 @@ const CartScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       {/* ── Header ── */}
       <View style={styles.header}>
         <View style={styles.headerLeftContainer}>

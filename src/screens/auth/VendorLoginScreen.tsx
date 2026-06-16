@@ -7,7 +7,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Alert,
-  TouchableOpacity, TextInput, ActivityIndicator, Dimensions
+  TouchableOpacity, TextInput, ActivityIndicator, Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -15,9 +15,11 @@ import api from '../../services/api';
 import { setCredentials } from '../../store/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
-import { LayoutGrid, ArrowRight, Lock, ArrowLeft, HelpCircle } from 'lucide-react-native';
+import { ArrowRight, Lock, ArrowLeft, HelpCircle, ChevronDown } from 'lucide-react-native';
 import Svg, { Rect, Path, Line } from 'react-native-svg';
 import translations, { AppLanguage } from '../../i18n';
+
+const appLogo = require('../../assets/appicon_multicolor_512.png');
 
 interface Props {
   route?: any;
@@ -141,7 +143,8 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   const getMaskedMobile = (num: string) => {
-    return `+91 ${num}`;
+    if (num.length < 3) return `+91 ••••• ••${num}`;
+    return `+91 ••••• ••${num.slice(-3)}`;
   };
 
   return (
@@ -155,14 +158,9 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
           <ArrowLeft size={20} color={Colors.textPrimary} />
         </TouchableOpacity>
 
-        <Text style={styles.headerTitle}>{t('appName')}</Text>
+        <View style={{ flex: 1 }} />
 
-        <TouchableOpacity
-          style={styles.helpBtn}
-          onPress={() => Alert.alert('Support', 'Connecting to support concierge...')}
-          activeOpacity={0.7}>
-          <HelpCircle size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
+        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -170,10 +168,10 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
           <>
             {/* Page 4 - Mobile Number Input */}
             <View style={styles.brandContainer}>
-              <View style={styles.logoCard}>
-                <LayoutGrid size={18} color="#FFFFFF" strokeWidth={2.5} />
+              <View style={styles.logoBlock}>
+                <Image source={appLogo} style={styles.logoImage} resizeMode="contain" />
               </View>
-              <Text style={styles.brandName}>{t('appName')}</Text>
+              <Text style={styles.brandName}>SUPPLY SETU</Text>
             </View>
 
             <Text style={styles.title}>Welcome back.</Text>
@@ -186,21 +184,27 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
               <Text style={styles.inputLabel}>MOBILE NUMBER</Text>
 
               <View style={styles.phoneInputRow}>
-                <Text style={styles.flag}>🇮🇳</Text>
-                <Text style={styles.countryCode}>+91</Text>
-                <View style={styles.divider} />
+                <View style={styles.phonePrefix}>
+                  <Text style={styles.flag}>🇮🇳</Text>
+                  <Text style={styles.countryCode}>+91</Text>
+                  <ChevronDown size={16} color={Colors.textMuted} />
+                </View>
+                <View style={styles.prefixDivider} />
                 <TextInput
                   style={styles.phoneInput}
                   value={mobile}
                   onChangeText={t => setMobile(t.replace(/\D/g, '').slice(0, 10))}
                   keyboardType="number-pad"
                   placeholder="98765 43210"
-                  placeholderTextColor="#C0BBBB"
+                  placeholderTextColor="#7F7B7B"
                   maxLength={10}
                 />
               </View>
 
-              <Text style={styles.helperText}>A 6-digit OTP will be sent to this number.</Text>
+              <View style={styles.helperRow}>
+                <HelpCircle size={14} color={Colors.textMuted} />
+                <Text style={styles.helperText}>A 6-digit OTP will be sent to this number.</Text>
+              </View>
 
               <TouchableOpacity style={styles.btn} onPress={handleSendOTP} activeOpacity={0.85} disabled={loading}>
                 {loading ? (
@@ -208,7 +212,7 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
                 ) : (
                   <>
                     <Text style={styles.btnText}>Send OTP</Text>
-                    <ArrowRight size={16} color="#E8C449" strokeWidth={2.5} />
+                    <ArrowRight size={16} color={Colors.white} strokeWidth={2.5} />
                   </>
                 )}
               </TouchableOpacity>
@@ -321,38 +325,46 @@ const VendorLoginScreen: React.FC<Props> = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FDF8F8', // Warm off-white
+    backgroundColor: '#F5F3EE',
   },
   topHeader: {
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2EDED',
-    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: '#F5F3EE',
   },
   backBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#FAF5F5',
+    backgroundColor: Colors.white,
+    borderWidth: 0.5,
+    borderColor: '#D9D6CE',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  headerLogoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  headerLogoMini: {
+    width: 24,
+    height: 24,
+    borderRadius: Radius.sm,
+    backgroundColor: '#121111',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerLogoImage: {
+    width: 16,
+    height: 16,
   },
   headerTitle: {
     fontSize: 15,
     fontWeight: '700',
     color: Colors.textPrimary,
-  },
-  helpBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FAF5F5',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   content: {
     paddingHorizontal: Spacing.xl,
@@ -361,108 +373,121 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   brandContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: Spacing.xl,
   },
-  logoCard: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#121111',
+  logoBlock: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: '#1A1A2E',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  logoImage: {
+    width: 32,
+    height: 32,
   },
   brandName: {
-    fontSize: 16,
+    fontSize: 11,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: '#7A6A1E',
+    letterSpacing: 0.8,
   },
   title: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 26,
+    fontWeight: '500',
     color: Colors.textPrimary,
     marginBottom: Spacing.xs,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 14,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 20,
     paddingHorizontal: Spacing.sm,
     marginBottom: Spacing.xl,
   },
   card: {
     width: '100%',
     backgroundColor: Colors.white,
-    borderRadius: Radius.lg,
-    paddingVertical: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
-    borderWidth: 1.5,
-    borderColor: '#EFEBEB',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 0.5,
+    borderColor: '#E7E2D8',
     marginBottom: Spacing.xl,
     ...Shadow.sm,
   },
   inputLabel: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '700',
-    color: Colors.primary,
-    letterSpacing: 1,
+    color: '#7A6A1E',
+    letterSpacing: 0.8,
     marginBottom: Spacing.sm,
   },
   phoneInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#EFEBEB',
-    paddingBottom: Spacing.sm,
+    backgroundColor: '#F5F3EE',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 14,
     marginBottom: Spacing.md,
+  },
+  phonePrefix: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  prefixDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#D8D4CD',
+    marginHorizontal: Spacing.md,
   },
   flag: {
     fontSize: 18,
-    marginRight: 6,
   },
   countryCode: {
     fontSize: 14,
     fontWeight: '700',
     color: Colors.textPrimary,
-    marginRight: Spacing.sm,
-  },
-  divider: {
-    width: 1,
-    height: 16,
-    backgroundColor: '#E6E1E1',
-    marginRight: Spacing.sm,
   },
   phoneInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     color: Colors.textPrimary,
     fontWeight: '500',
     paddingVertical: 0,
   },
-  helperText: {
-    fontSize: 11,
-    color: Colors.textMuted,
+  helperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
     marginBottom: Spacing.lg,
   },
+  helperText: {
+    fontSize: 12,
+    color: Colors.textMuted,
+    flex: 1,
+  },
   btn: {
-    backgroundColor: '#121111',
-    borderRadius: Radius.full,
+    backgroundColor: '#1A1A2E',
+    borderRadius: 10,
     paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
     width: '100%',
     ...Shadow.sm,
   },
   btnText: {
     color: Colors.white,
     fontWeight: '700',
-    fontSize: Typography.body,
+    fontSize: 15,
   },
   linkContainer: {
     paddingVertical: Spacing.xs,
@@ -589,14 +614,14 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   footerLink: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: '700',
-    color: Colors.primary,
+    color: '#7A6A1E',
     letterSpacing: 0.8,
   },
   footerLinkDot: {
-    fontSize: 8,
-    color: '#E6E1E1',
+    fontSize: 11,
+    color: '#7A6A1E',
   },
   footerCopyRow: {
     flexDirection: 'row',
@@ -606,7 +631,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.sm,
   },
   footerCopy: {
-    fontSize: 9,
+    fontSize: 11,
     color: Colors.textMuted,
   },
   secureContainer: {
@@ -614,7 +639,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secureText: {
-    fontSize: 9,
+    fontSize: 11,
     color: Colors.textMuted,
     fontWeight: '500',
   },

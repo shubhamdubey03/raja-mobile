@@ -117,6 +117,15 @@ const VendorTab = () => (
       }}
     />
     <Tab.Screen
+      name="Ledger"
+      component={LedgerScreen}
+      options={{
+        title: 'Ledger',
+        tabBarLabel: 'Ledger',
+        tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} strokeWidth={2} />,
+      }}
+    />
+    <Tab.Screen
       name="Profile"
       component={ProfileScreen}
       options={{
@@ -174,15 +183,6 @@ const RetailerTab = () => (
         title: 'Orders',
         tabBarLabel: 'Orders',
         tabBarIcon: ({ color, size }) => <ClipboardList size={size} color={color} strokeWidth={2} />,
-      }}
-    />
-    <Tab.Screen
-      name="Ledger"
-      component={LedgerScreen}
-      options={{
-        title: 'Ledger',
-        tabBarLabel: 'Ledger',
-        tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} strokeWidth={2} />,
       }}
     />
     <Tab.Screen

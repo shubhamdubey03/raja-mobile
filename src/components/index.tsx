@@ -172,14 +172,17 @@ export const ProductCard: React.FC<{
   imageUrl?: string | null;
   unit?: string;
   onPress: () => void;
-}> = ({ name, price, stockQty, threshold, imageUrl, unit = 'pc', onPress }) => {
+}> = ({ name, price, stockQty, threshold, imageUrl, unit = 'piece', onPress }) => {
   const [imgError, setImgError] = useState(false);
 
   const isOutOfStock = stockQty <= 0;
   const isLowStock = !isOutOfStock && stockQty <= threshold;
-  const statusColor = isOutOfStock ? '#E53E3E' : isLowStock ? '#D69E2E' : '#319795';
-  const statusBg = isOutOfStock ? '#FFF5F5' : isLowStock ? '#FEFCBF' : '#E6FFFA';
-  const statusLabel = isOutOfStock ? 'Sold Out' : isLowStock ? 'Low Stock' : 'In Stock';
+  
+  // Status tag configuration matching user screenshot exactly
+  const dotColor = isOutOfStock ? '#D9743E' : '#2D8A4E';
+  const statusColor = isOutOfStock ? '#92400E' : '#065F46';
+  const statusBg = isOutOfStock ? '#FEF3C7' : '#D1FAE5';
+  const statusLabel = isOutOfStock ? 'SOLD OUT' : 'IN STOCK';
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={styles.productCard}>
@@ -199,29 +202,37 @@ export const ProductCard: React.FC<{
         )}
         {/* Status pill overlaid on image */}
         <View style={[styles.statusTag, { backgroundColor: statusBg }]}>
+          <View style={[styles.statusDot, { backgroundColor: dotColor }]} />
           <Text style={[styles.statusTagText, { color: statusColor }]}>{statusLabel}</Text>
         </View>
       </View>
 
       {/* ── Info ── */}
       <View style={styles.productInfo}>
-        <View>
+        <View style={{ marginBottom: 8 }}>
           <Text style={styles.productName} numberOfLines={2}>{name}</Text>
-          <Text style={styles.productUnitText}>Pack size: {unit}</Text>
+          <Text style={styles.productUnitText}>Pack: {unit}</Text>
+          <Text style={styles.productPriceText}>₹{(price / 100).toFixed(2)}</Text>
+          <Text style={[styles.stockText, { color: isOutOfStock ? '#DC2626' : '#059669' }]}>
+            {isOutOfStock ? 'Unavailable' : `${stockQty} units left`}
+          </Text>
         </View>
         
-        <View style={styles.productCardFooter}>
-          <View>
-            <Text style={styles.productPriceText}>₹{(price / 100).toFixed(2)}</Text>
-            <Text style={[styles.stockText, isOutOfStock && { color: '#BA1A1A' }]}>
-              {isOutOfStock ? 'Unavailable' : `${stockQty} available`}
-            </Text>
-          </View>
-
-          <View style={styles.addIndicator}>
-            <Text style={styles.addIndicatorText}>View</Text>
-          </View>
-        </View>
+        {/* Full-width button at bottom of card */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={onPress}
+          style={[
+            styles.fullWidthViewBtn,
+            isOutOfStock
+              ? { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#5C5A1E' }
+              : { backgroundColor: '#5C5A1E' }
+          ]}
+        >
+          <Text style={[styles.fullWidthViewBtnText, { color: isOutOfStock ? '#5C5A1E' : '#FFFFFF' }]}>
+            View
+          </Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
@@ -386,13 +397,21 @@ const styles = StyleSheet.create({
     top: 8,
     left: 8,
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 1.5,
     elevation: 1,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   statusTagText: {
     fontSize: 9,
@@ -401,51 +420,45 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
   productInfo: {
-    padding: 10,
+    padding: 12,
     flex: 1,
     justifyContent: 'space-between',
   },
   productName: {
-    fontSize: 13.5,
-    fontWeight: '600',
-    color: '#2C2A29',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#111827',
     lineHeight: 18,
     minHeight: 36, // Ensure name fits in exactly two lines nicely
-    marginBottom: 4,
+    marginBottom: 2,
   },
   productUnitText: {
-    fontSize: 10.5,
-    color: '#8A8682',
+    fontSize: 11,
+    color: '#6B7280',
     fontWeight: '500',
-    marginBottom: 8,
-  },
-  productCardFooter: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    marginBottom: 2,
   },
   productPriceText: {
-    fontSize: 15.5,
+    fontSize: 14,
     fontWeight: '700',
-    color: '#725B00',
+    color: '#1F2937',
+    marginBottom: 2,
   },
   stockText: {
-    fontSize: 10,
-    color: '#6E6A66',
-    marginTop: 2,
-    fontWeight: '400',
-  },
-  addIndicator: {
-    backgroundColor: '#FFF9E6',
-    borderWidth: 1,
-    borderColor: '#725B00',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  addIndicatorText: {
     fontSize: 11,
+    fontWeight: '600',
+    marginTop: 2,
+  },
+  fullWidthViewBtn: {
+    width: '100%',
+    height: 34,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  fullWidthViewBtnText: {
+    fontSize: 12,
     fontWeight: '700',
-    color: '#725B00',
   },
 });

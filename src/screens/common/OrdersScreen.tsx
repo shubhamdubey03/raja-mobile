@@ -22,13 +22,14 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }
   delivered:  { label: 'DELIVERED',         color: '#23501D', bg: '#EAF2E8' },
   cancelled:  { label: 'CANCELLED',         color: '#BA1A1A', bg: '#FFDAD6' },
   processing: { label: 'PROCESSING',        color: '#6B7280', bg: '#F0EDEB' },
+  returned:   { label: 'RETURNED',          color: '#BA1A1A', bg: '#FFDAD6' },
 };
 
 // ── Order Confirmation Screen ──────────────────────────────────
 export const OrderConfirmationScreen: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const { order } = route.params;
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.confirmWrap}>
         {/* Checkmark */}
         <View style={styles.confirmIconWrap}>
@@ -178,7 +179,7 @@ const OrdersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   }, [filter]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>My Orders</Text>

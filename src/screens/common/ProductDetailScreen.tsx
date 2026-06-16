@@ -59,7 +59,7 @@ const ProductDetailScreen: React.FC<{ navigation: any; route: any }> = ({ naviga
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       {/* ── Header ── */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
@@ -130,11 +130,18 @@ const ProductDetailScreen: React.FC<{ navigation: any; route: any }> = ({ naviga
             <View style={styles.section}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Description</Text>
-                <ChevronRight size={16} color={Colors.textMuted} />
               </View>
               <Text style={styles.desc}>{product.description}</Text>
             </View>
           ) : null}
+
+          {/* Return Policy */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Return Policy</Text>
+            </View>
+            <Text style={styles.desc}>{product.return_policy || 'No returns allowed'}</Text>
+          </View>
 
           {/* Quantity Selector */}
           <View style={styles.qtySection}>

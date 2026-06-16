@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAppSelector } from '../../hooks/useRedux';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
-import { ArrowLeft, User, Store, Factory } from 'lucide-react-native';
+import { ArrowLeft, Store, Factory } from 'lucide-react-native';
 import translations, { AppLanguage } from '../../i18n';
 
 interface Props {
@@ -46,15 +46,12 @@ const RoleSelectScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
           <Text style={styles.headerBrand}>{t('appName')}</Text>
         </View>
-        <TouchableOpacity style={styles.headerRight} activeOpacity={0.7}>
-          <User size={20} color={Colors.textPrimary} />
-        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Onboarding Tag & Title */}
         <Text style={styles.tag}>{t('onboarding')}</Text>
-        
+
         {/* Welcome to the Next Era of Supply (Next Era in Italic) */}
         <Text style={styles.title}>
           Welcome to the{'\n'}
@@ -75,7 +72,7 @@ const RoleSelectScreen: React.FC<Props> = ({ navigation }) => {
             I'm a Retailer
           </Text>
           <Text style={styles.cardDesc}>{t('retailerLongDesc')}</Text>
-          
+
           <TouchableOpacity
             style={styles.cardLink}
             onPress={() => {
@@ -98,7 +95,7 @@ const RoleSelectScreen: React.FC<Props> = ({ navigation }) => {
             I'm a Vendor
           </Text>
           <Text style={styles.cardDesc}>{t('vendorLongDesc')}</Text>
-          
+
           <TouchableOpacity
             style={styles.cardLink}
             onPress={() => {
@@ -142,7 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF8F8', // Warm off-white
   },
   topHeader: {
-    height: 56,
+    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -150,6 +147,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F2EDED',
     backgroundColor: Colors.white,
+    marginBottom: -Spacing.xs,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -162,14 +160,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: Colors.textPrimary,
-  },
-  headerRight: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F7F4F4',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   content: {
     paddingHorizontal: Spacing.xl,

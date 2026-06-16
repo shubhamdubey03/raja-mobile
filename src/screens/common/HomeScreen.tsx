@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, RefreshControl, Alert, Image
+  StyleSheet, RefreshControl, Alert, Image, Modal, Pressable, FlatList
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import api from '../../services/api';
@@ -17,6 +17,7 @@ import { useTranslation } from '../../i18n';
 import {
   ShoppingCart, PackageSearch, TrendingUp,
   Users, AlertTriangle, Sparkles, ClipboardList, Bell,
+  ChevronDown, Check
 } from 'lucide-react-native';
 import Svg, { Path, Defs, LinearGradient, Stop, Circle, Text as SvgText } from 'react-native-svg';
 
@@ -166,6 +167,14 @@ const SalesChart: React.FC<{ trendData: any[] }> = ({ trendData }) => {
   );
 };
 
+const FALLBACK_MAIN_CATEGORIES = ['All', 'Grocery', 'Electronics', 'Home & Kitchen'];
+
+const FALLBACK_SUBCATEGORIES_DATA: { [key: string]: string[] } = {
+  "Grocery": ["Daal", "Aata", "Masala", "Tel/Oil", "Rice", "Tea & Coffee", "Snacks"],
+  "Electronics": ["Mobile", "Laptop", "Charger", "Earphones", "Smart TV", "Camera"],
+  "Home & Kitchen": ["Cookware", "Cleaning", "Storage", "Appliances", "Bedding"]
+};
+
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const t = useTranslation();
   const user = useAppSelector(s => s.auth.user);
@@ -174,7 +183,67 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   // Retailer states
   const [categories, setCategories] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
-  const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<string>('All');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('');
+  const [showCatDropdown, setShowCatDropdown] = useState(false);
+  const [showSubCatDropdown, setShowSubCatDropdown] = useState(false);
+
+  const toggleCatDropdown = () => {
+    setShowCatDropdown(prev => !prev);
+    setShowSubCatDropdown(false);
+  };
+
+  const toggleSubCatDropdown = () => {
+    setShowSubCatDropdown(prev => !prev);
+    setShowCatDropdown(false);
+  };
+
+  const handleMainCategoryPress = (catName: string) => {
+    setSelectedMainCategory(catName);
+    if (catName === 'All') {
+      setSelectedSubCategory('');
+    } else {
+      const allPrefix = catName === 'Home & Kitchen' ? 'All H&K' : `All ${catName}`;
+      setSelectedSubCategory(allPrefix);
+    }
+    setShowCatDropdown(false);
+    setShowSubCatDropdown(false);
+  };
+
+  const dynamicMainCategories = React.useMemo(() => {
+    if (!categories || categories.length === 0) {
+      return FALLBACK_MAIN_CATEGORIES;
+    }
+    return ['All', ...categories.map(c => c.name)];
+  }, [categories]);
+
+  const getSubcategories = (catName: string) => {
+    if (catName === 'All') return [];
+    const found = categories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+    const list = found ? (found.sub_categories || found.subcategories || []).map((sub: any) => sub.name) : [];
+    if (list.length === 0) {
+      const fallbackList = FALLBACK_SUBCATEGORIES_DATA[catName] || [];
+      const allPrefix = catName === 'Home & Kitchen' ? 'All H&K' : `All ${catName}`;
+      return [allPrefix, ...fallbackList];
+    }
+    const allPrefix = catName === 'Home & Kitchen' ? 'All H&K' : `All ${catName}`;
+    return [allPrefix, ...list];
+  };
+
+  const selectedRootCatId = React.useMemo(() => {
+    if (selectedMainCategory === 'All') return null;
+    const found = categories.find(c => c.name.toLowerCase() === selectedMainCategory.toLowerCase());
+    return found ? found.id : null;
+  }, [selectedMainCategory, categories]);
+
+  const selectedSubCatId = React.useMemo(() => {
+    if (!selectedSubCategory || selectedSubCategory.startsWith('All')) return null;
+    const root = categories.find(c => c.name.toLowerCase() === selectedMainCategory.toLowerCase());
+    if (!root) return null;
+    const subList = root.sub_categories || root.subcategories || [];
+    const found = subList.find((s: any) => s.name.toLowerCase() === selectedSubCategory.toLowerCase());
+    return found ? found.id : null;
+  }, [selectedSubCategory, selectedMainCategory, categories]);
 
   // Vendor state
   const [dashboard, setDashboard] = useState<VendorDashboard | null>(null);
@@ -194,6 +263,15 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
   }, []);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const { data } = await api.get('/categories/tree');
+      setCategories(data || []);
+    } catch (e) {
+      console.error('Error fetching categories:', e);
+    }
+  }, []);
+
   // 2. Main initial loader (loads static categories once, dashboard or initial products once)
   const loadInitialData = useCallback(async () => {
     try {
@@ -204,7 +282,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       } else {
         // Load categories once, and initial products in parallel
         const [catRes, prodRes] = await Promise.all([
-          api.get('/categories'),
+          api.get('/categories/tree'),
           api.get('/products', { params: { page_size: 20 } }),
         ]);
         setCategories(catRes.data || []);
@@ -225,9 +303,9 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   // Fetch products when selected category changes (WITHOUT reloading categories!)
   useEffect(() => {
     if (!isVendor && !loading) {
-      fetchProducts(selectedCat);
+      fetchProducts(selectedSubCatId || selectedRootCatId);
     }
-  }, [selectedCat, fetchProducts, isVendor]);
+  }, [selectedRootCatId, selectedSubCatId, fetchProducts, isVendor]);
 
   // Pull-to-refresh handler
   const onRefresh = async () => {
@@ -237,7 +315,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         const { data } = await api.get('/vendor/dashboard');
         setDashboard(data);
       } else {
-        await fetchProducts(selectedCat);
+        await fetchProducts(selectedSubCatId || selectedRootCatId);
       }
     } catch (e) {
       console.error('Refresh error:', e);
@@ -249,7 +327,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   // ─── Loading skeleton ───────────────────────────────────────
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <View style={styles.skeletonHeader}>
           <Skeleton width={160} height={14} />
           <Skeleton width={220} height={28} />
@@ -278,7 +356,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       : formatINR(d?.pending_amount_paise ?? 0);
 
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+      <SafeAreaView style={styles.container} edges={['left', 'right']}>
         {/* Brand Header */}
         <View style={[styles.vendorHeader, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
           <View style={styles.brandTitleWrap}>
@@ -471,7 +549,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   // ─── RETAILER VIEW ──────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={['left', 'right']}>
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -502,40 +580,38 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         }>
 
         <View>
-          {/* Category Chips */}
-          {categories.length > 0 && (
-            <>
-              <View style={{ paddingHorizontal: Spacing.xl }}>
-                <SectionHeader title={t('categories')} />
+          {/* Category Dropdown Selector */}
+          <View style={styles.dropdownContainer}>
+            <TouchableOpacity
+              style={styles.dropdownHeader}
+              activeOpacity={0.8}
+              onPress={toggleCatDropdown}>
+              <View style={styles.dropdownHeaderTextWrap}>
+                <Text style={styles.dropdownLabel}>Category</Text>
+                <Text style={styles.dropdownValue}>
+                  {selectedMainCategory === 'All' ? 'All Categories' : selectedMainCategory}
+                </Text>
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.catScroll}
-                contentContainerStyle={styles.catScrollContent}>
-                <TouchableOpacity
-                  style={[styles.catChip, !selectedCat && styles.catChipActive]}
-                  onPress={() => setSelectedCat(null)}>
-                  <Text style={[styles.catChipText, !selectedCat && { color: Colors.white }]}>
-                    All
+              <ChevronDown size={20} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Subcategory Dropdown Selector */}
+          {selectedMainCategory !== 'All' && (
+            <View style={styles.dropdownContainer}>
+              <TouchableOpacity
+                style={styles.dropdownHeader}
+                activeOpacity={0.8}
+                onPress={toggleSubCatDropdown}>
+                <View style={styles.dropdownHeaderTextWrap}>
+                  <Text style={styles.dropdownLabel}>Sub-category</Text>
+                  <Text style={styles.dropdownValue}>
+                    {selectedSubCategory.startsWith('All') ? 'All' : selectedSubCategory}
                   </Text>
-                </TouchableOpacity>
-                {categories.map(c => (
-                  <TouchableOpacity
-                    key={c.id}
-                    style={[styles.catChip, selectedCat === c.id && styles.catChipActive]}
-                    onPress={() => setSelectedCat(c.id)}>
-                    <Text
-                      style={[
-                        styles.catChipText,
-                        selectedCat === c.id && { color: Colors.white },
-                      ]}>
-                      {c.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </>
+                </View>
+                <ChevronDown size={20} color={Colors.primary} />
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* Products */}
@@ -566,6 +642,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                     stockQty={p.stock_qty}
                     threshold={p.low_stock_threshold}
                     imageUrl={normalizeImageUrl(p.images?.[0]?.image_url ?? p.image_url ?? null)}
+                    unit={p.unit}
                     onPress={() =>
                       navigation.navigate('ProductDetail', { productId: p.id, product: p })
                     }
@@ -576,6 +653,81 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Category Selection Modal */}
+      <Modal
+        visible={showCatDropdown}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCatDropdown(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowCatDropdown(false)}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Category</Text>
+              <TouchableOpacity onPress={() => setShowCatDropdown(false)}>
+                <Text style={styles.modalCloseText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={dynamicMainCategories}
+              keyExtractor={item => item}
+              renderItem={({ item }) => {
+                const isActive = selectedMainCategory === item;
+                return (
+                  <TouchableOpacity
+                    style={[styles.modalItem, isActive && styles.modalItemActive]}
+                    onPress={() => {
+                      handleMainCategoryPress(item);
+                    }}>
+                    <Text style={[styles.modalItemText, isActive && styles.modalItemTextActive]}>
+                      {item === 'All' ? 'All Categories' : item}
+                    </Text>
+                    {isActive && <Check size={18} color={Colors.primary} />}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Subcategory Selection Modal */}
+      <Modal
+        visible={showSubCatDropdown}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSubCatDropdown(false)}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setShowSubCatDropdown(false)}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Sub-category</Text>
+              <TouchableOpacity onPress={() => setShowSubCatDropdown(false)}>
+                <Text style={styles.modalCloseText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={getSubcategories(selectedMainCategory)}
+              keyExtractor={item => item}
+              renderItem={({ item }) => {
+                const isActive = selectedSubCategory === item;
+                return (
+                  <TouchableOpacity
+                    style={[styles.modalItem, isActive && styles.modalItemActive]}
+                    onPress={() => {
+                      setSelectedSubCategory(item);
+                      setShowSubCatDropdown(false);
+                    }}>
+                    <Text style={[styles.modalItemText, isActive && styles.modalItemTextActive]}>
+                      {item}
+                    </Text>
+                    {isActive && <Check size={18} color={Colors.primary} />}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -886,6 +1038,98 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
+  },
+
+  // Dropdown Styling
+  dropdownContainer: {
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
+    marginTop: Spacing.sm,
+    position: 'relative',
+    zIndex: 100,
+    elevation: 5,
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadow.sm,
+  },
+  dropdownHeaderTextWrap: {
+    flexDirection: 'column',
+  },
+  dropdownLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+  },
+  dropdownValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginTop: 2,
+  },
+  
+  // Modal Bottom Sheet Styling
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: Radius.lg,
+    borderTopRightRadius: Radius.lg,
+    paddingBottom: Spacing.xl,
+    maxHeight: '70%',
+    ...Shadow.md,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F1EC',
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  modalCloseText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  modalItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F1EC',
+  },
+  modalItemActive: {
+    backgroundColor: '#F9F7F4',
+  },
+  modalItemText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  modalItemTextActive: {
+    color: Colors.primary,
+    fontWeight: '700',
   },
 });
 

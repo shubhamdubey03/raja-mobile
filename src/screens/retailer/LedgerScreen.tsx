@@ -20,8 +20,6 @@ import api from '../../services/api';
 import { EmptyState } from '../../components';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
 import {
-  Menu,
-  HelpCircle,
   Download,
   ChevronDown,
   ArrowUpRight,
@@ -140,7 +138,7 @@ const LedgerScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
         <View style={styles.loadingWrap}>
           <ActivityIndicator color={Colors.primary} size="large" />
           <Text style={styles.loadingText}>Loading ledger...</Text>
@@ -150,18 +148,7 @@ const LedgerScreen: React.FC = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* ── Custom App Header ── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn} activeOpacity={0.7}>
-          <Menu size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Supply Setu</Text>
-        <TouchableOpacity style={styles.headerBtn} activeOpacity={0.7}>
-          <HelpCircle size={22} color={Colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <FlatList
         data={filteredEntries}
         keyExtractor={item => item.id}
@@ -309,26 +296,7 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
   },
 
-  // Custom Header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    backgroundColor: '#FDF8F8',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2ECE8',
-  },
-  headerBtn: {
-    padding: 6,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: -0.3,
-  },
+
 
   list: {
     paddingHorizontal: Spacing.xl,

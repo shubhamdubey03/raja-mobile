@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/useRedux';
 import { setLanguage } from '../../store/slices/settingsSlice';
 import { Colors, Typography, Spacing, Radius, Shadow } from '../../theme';
 import { 
-  Menu, User, Globe, Languages, CaseSensitive, 
+  Globe, Languages, CaseSensitive, 
   Compass, Scroll, PenTool, ArrowRight 
 } from 'lucide-react-native';
 import translations, { AppLanguage } from '../../i18n';
@@ -46,17 +46,6 @@ const LanguageSelectScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Top Header Menu Bar */}
-      <View style={styles.topHeader}>
-        <View style={styles.headerLeft}>
-          <Menu size={22} color={Colors.textPrimary} style={styles.menuIcon} />
-          <Text style={styles.headerBrand}>{t('appName')}</Text>
-        </View>
-        <TouchableOpacity style={styles.headerRight} activeOpacity={0.7}>
-          <User size={20} color={Colors.textPrimary} />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Title & Slogan */}
         <View style={styles.header}>
@@ -126,36 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FDF8F8', // Premium warm off-white background
   },
-  topHeader: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2EDED',
-    backgroundColor: Colors.white,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  menuIcon: {
-    marginRight: Spacing.md,
-  },
-  headerBrand: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  headerRight: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F7F4F4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+
   content: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
